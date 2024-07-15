@@ -1,7 +1,9 @@
 const puppeteer = require('puppeteer');
 
 async function fetchJavaScriptContent(req, res) {
-  const url = req.params[0];
+  const url = req.query.url;
+  const options = req.query.options;
+  console.log(options)
   let isStagingUrl = url.includes("staging");
   let device = 'desktop';
   const browser = await puppeteer.launch({
@@ -23,7 +25,24 @@ async function fetchJavaScriptContent(req, res) {
 
   // for everything
   const divContent = await page.evaluate(() => {
-    const div = document.documentElement.outerHTML;
+    var div;
+    console.log(option);
+    if (option !== undefined) {
+      switch (option) { 
+        case "conspon":
+          div = document.querySelector('div.conspon');
+          break;
+        case "scripts":
+          document.querySelectorAll('script[type="text/javascript"]').forEach((script, index) => {
+            div[index] = script.outerHTML ? script.outerHTML : "Not a Script";
+          });
+          break;
+        default:
+          div = document.documentElement.outerHTML;
+      }
+    } else
+      div = document.documentElement.outerHTML;
+
     return div ? div : "Not a div";
   });
 

@@ -1,5 +1,5 @@
 const validateUrl = (req, res, next) => {
-    const url = req.params[0];
+    const url = req.query.url;
     // Simple validation to check if the URL starts with http:// or https://
     if (/^https?:\/\/.*/.test(url)) {
         next();

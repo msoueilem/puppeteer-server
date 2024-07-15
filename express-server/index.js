@@ -11,7 +11,7 @@ app.get("/", (req, res) => {
 });
 
 // Route for fetching content from a URL
-app.get("/fetch/*", validateUrl, fetchJavaScriptContent);
+app.get("/fetch", validateUrl, fetchJavaScriptContent); // validateUrl
 
 app.listen(PORT, (error) => {
     if (!error) {
