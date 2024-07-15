@@ -26,9 +26,9 @@ async function fetchJavaScriptContent(req, res) {
   // for everything
   const divContent = await page.evaluate(() => {
     var div;
-    console.log(option);
-    if (option !== undefined) {
-      switch (option) { 
+    console.log(options);
+    if (options !== undefined) {
+      switch (options) { 
         case "conspon":
           div = document.querySelector('div.conspon');
           break;
