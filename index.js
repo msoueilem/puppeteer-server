@@ -3,7 +3,7 @@ const { fetchJavaScriptContent } = require('./controller/fetchController');
 const { validateUrl } = require('./validations/appValidations');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Handling CORS
 app.use((req, res, next) => {
