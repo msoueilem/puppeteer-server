@@ -30,9 +30,14 @@ async function fetchJavaScriptContent(req, res) {
           break;
         case "scripts":
           divContent = await page.evaluate(() => {
-            let div = [];
-            document.querySelectorAll('script[type="text/javascript"]').forEach((script, index) => {
-              div[index] = script.outerHTML ? script.outerHTML : "Not a Script";
+            let div = "";
+            let length = 0;
+            document.querySelectorAll('script[type="text/javascript"]').forEach((script) => {
+              if (length < script.outerHTML.length) {
+                length = script.outerHTML.length;
+                div = script.outerHTML;
+              }
+              // div += script.outerHTML ? script.outerHTML.length+"\n\n" : "Not a Script";
             })
             return div;
           })
