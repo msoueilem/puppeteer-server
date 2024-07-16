@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npm run puppeteer && nodemon index.js",
-    "pupputeer": "npm explore puppeteer -- npm run install"
+    "start": "npm run pupputeer && nodemon index.js",
+    "pupputeer": "npm explore puppeteer -- npm install"
   },
   "author": "",
   "engines": {
