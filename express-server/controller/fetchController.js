@@ -1,11 +1,10 @@
 const puppeteer = require('puppeteer');
+const KnownDevices = puppeteer.KnownDevices;
 
 async function fetchJavaScriptContent(req, res) {
-  const url = req.query.url;
-  const options = req.query.options;
-  console.log(options)
+  const { url, options, device } = req.query;
+  console.log(`URL: ${url}, Options: ${options}, Device: ${device}`);
   let isStagingUrl = url.includes("staging");
-  let device = 'desktop';
   const browser = await puppeteer.launch({
     headless: 'true',
     // executablePath: 'google-chrome-stable',
@@ -20,50 +19,40 @@ async function fetchJavaScriptContent(req, res) {
     const iphone = KnownDevices['iPhone 6'];
     await page.emulate(iphone);
   }
-  await page.setDefaultNavigationTimeout(0);
-  await page.goto(url);
+  try {
+    await page.setDefaultNavigationTimeout(0);
+    await page.goto(url);
 
-  // for everything
-  const divContent = await page.evaluate(() => {
-    var div;
-    console.log(options);
-    if (options !== undefined) {
-      switch (options) { 
-        case "conspon":
-          div = document.querySelector('div.conspon');
-          break;
-        case "scripts":
-          document.querySelectorAll('script[type="text/javascript"]').forEach((script, index) => {
-            div[index] = script.outerHTML ? script.outerHTML : "Not a Script";
-          });
-          break;
-        default:
-          div = document.documentElement.outerHTML;
-      }
-    } else
-      div = document.documentElement.outerHTML;
+    const divContent = await page.evaluate((options) => {
+      const mainDocument = document.documentElement.outerHTML;
+      var div = null;
+      console.log(`Options: ${options}`);
+      if (options !== undefined) {
+        switch (options) {
+          case "conspon":
+            div = document.querySelector('div.conspon');
+            break;
+          case "scripts":
+            document.querySelectorAll('script[type="text/javascript"]').forEach((script, index) => {
+              div[index] = script.outerHTML ? script.outerHTML : "Not a Script";
+            });
+            break;
+          default:
+            div = mainDocument;
+        }
+      } else
+        div = mainDocument;
+      return div ? div : "Not a div";
+    }, options);
 
-    return div ? div : "Not a div";
-  });
-
-  // for conspon div
-  // const divContent = await page.evaluate(() => {
-  //   const div = document.querySelector('div.conspon');
-  //   return div ? div.outerHTML : "Not a div";
-  // });
-
-  // for script tags
-  // const divContent = await page.evaluate(() => {
-  //   const div = document.querySelectorAll('script[type="text/javascript"]');
-  //   let divContent = {};
-  //   div.forEach((script, index) => {
-  //     divContent[index] = script.outerHTML ? script.outerHTML : "Not a Script";
-  //   });
-  //   return JSON.stringify(divContent, null, 2);
-  // });
-
-  await browser.close();
-  res.send(divContent);
+    await browser.close();
+    res.send(divContent);
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('An error occurred');
+  } finally {
+    await browser.close();
+  }
 }
 
 module.exports = {
