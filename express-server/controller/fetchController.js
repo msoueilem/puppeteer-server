@@ -3,7 +3,6 @@ const KnownDevices = puppeteer.KnownDevices;
 
 async function fetchJavaScriptContent(req, res) {
   const { url, options, device } = req.query;
-  console.log(`URL: ${url}, Options: ${options}, Device: ${device}`);
   let isStagingUrl = url.includes("staging");
   const browser = await puppeteer.launch({
     headless: 'true',
@@ -22,28 +21,26 @@ async function fetchJavaScriptContent(req, res) {
   try {
     await page.setDefaultNavigationTimeout(0);
     await page.goto(url);
-
-    const divContent = await page.evaluate((options) => {
-      const mainDocument = document.documentElement.outerHTML;
-      var div = null;
-      console.log(`Options: ${options}`);
-      if (options !== undefined) {
-        switch (options) {
-          case "conspon":
-            div = document.querySelector('div.conspon');
-            break;
-          case "scripts":
+    let divContent = null;
+    if (options) {
+      switch (options) {
+        case "conspon":
+          divContent = await page.evaluate(() => document.querySelector('div.conspon').outerHTML);
+          break;
+        case "scripts":
+          divContent = await page.evaluate(() => {
+            let div = [];
             document.querySelectorAll('script[type="text/javascript"]').forEach((script, index) => {
               div[index] = script.outerHTML ? script.outerHTML : "Not a Script";
-            });
-            break;
-          default:
-            div = mainDocument;
-        }
-      } else
-        div = mainDocument;
-      return div ? div : "Not a div";
-    }, options);
+            })
+            return div;
+          })
+          break;
+        default:
+          divContent = await page.evaluate(() => document.documentElement.outerHTML);
+      }
+    } else
+      divContent = await page.evaluate(() => document.documentElement.outerHTML);
 
     await browser.close();
     res.send(divContent);
