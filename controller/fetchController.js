@@ -35,7 +35,7 @@ async function fetchJavaScriptContent(req, res) {
             document.querySelectorAll('script[type="text/javascript"]').forEach((script) => {
               if (length < script.outerHTML.length) {
                 length = script.outerHTML.length;
-                div = script.outerHTML;
+                div = script.innerHTML;
               }
               // div += script.outerHTML ? script.outerHTML.length+"\n\n" : "Not a Script";
             })
