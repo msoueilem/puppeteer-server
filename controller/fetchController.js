@@ -26,24 +26,34 @@ async function fetchJavaScriptContent(req, res) {
     if (options) {
       switch (options) {
         case "conspon":
-          divContent = await page.evaluate(() => document.querySelector('div.conspon').outerHTML);
+          divContent = await page.evaluate(
+            () => document.querySelector("div.conspon").outerHTML
+          );
           break;
+
         case "scripts":
           divContent = await page.evaluate(() => {
             let div = "";
-            let length = 0;
-            document.querySelectorAll('script[type="text/javascript"]').forEach((script) => {
-              if (length < script.outerHTML.length) {
-                length = script.outerHTML.length;
-                div = script.innerHTML;
-              }
-              // div += script.outerHTML ? script.outerHTML.length+"\n\n" : "Not a Script";
-            })
+
+            document
+              .querySelectorAll('script[type="text/javascript"]')
+              .forEach((script) => {
+                if (
+                  script.innerHTML.includes("var s_program_id") &&
+                  script.innerHTML.includes("var s_company_type")
+                ) {
+                  div = script.innerHTML;
+                }
+              });
+
             return div;
-          })
+          });
           break;
+        
         default:
-          divContent = await page.evaluate(() => document.documentElement.outerHTML);
+          divContent = await page.evaluate(
+            () => document.documentElement.outerHTML
+          );
       }
     } else
       divContent = await page.evaluate(() => document.documentElement.outerHTML);
